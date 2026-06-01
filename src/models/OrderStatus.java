@@ -1,4 +1,9 @@
 package models;
 
-public class OrderStatus {
+public enum OrderStatus {
+    ZLOZONE,
+    W_BUFORZE,
+    W_PRZYGOTOWANIU,
+    GOTOWE,
+    DOSTARCZONE
 }
