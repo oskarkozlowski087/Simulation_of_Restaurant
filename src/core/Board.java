@@ -1,4 +1,5 @@
 package core;
 
-public class Board {
+public class Board(){
+
 }
