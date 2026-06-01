@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="79f4fc22-51c2-4277-b923-2ccf30686d2b" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/agents/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/agents/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/agents/Cook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/agents/Cook.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/agents/MovingAgent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/agents/MovingAgent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/agents/Waiter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/agents/Waiter.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

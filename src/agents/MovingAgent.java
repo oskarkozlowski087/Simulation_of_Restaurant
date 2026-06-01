@@ -1,4 +1,5 @@
 package agents;
+import models.Order;
 
 public abstract class MovingAgent {
     protected int x;
@@ -6,6 +7,8 @@ public abstract class MovingAgent {
     protected int tarX;
     protected int tarY;
     protected boolean isOccupied;
+
+    protected Order order;
 
     public MovingAgent(int x, int y){
         this.x = x;
