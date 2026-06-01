@@ -1,4 +1,4 @@
-package Environment;
+package environment;
 
 public enum CellType {
 }
