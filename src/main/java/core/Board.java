@@ -59,7 +59,7 @@ public boolean canMoveTo(int x, int y){
     Cell cell = getCell(x,y);
     return cell != null && cell.isWalkable() && cell.getOccupant() == null;
 }
-    // metoda rejestruje agenta i stawia go na odpowiedniej komorce
+    // Metoda rejestruje agenta i stawia go na odpowiedniej komorce
     public void registerAgent(MovingAgent agent, int startX, int startY) {
         Cell cell = getCell(startX, startY);
         if (cell != null && cell.getOccupant() == null) {
@@ -75,12 +75,12 @@ public boolean canMoveTo(int x, int y){
         // Sprawdzamy, czy pole istnieje i czy jest wolne
         if (cell != null && cell.isWalkable() && cell.getOccupant() == null) {
 
-            // Fabryka tworzy agenta (Board nie wnika jak – po prostu dostaje obiekt)
+            // Fabryka tworzy agenta wysyła prosbę do fabryki i dostaje w zamian obiekt
             MovingAgent newAgent = AgentFactory.createAgent(type, startX, startY);
 
             if (newAgent != null) {
                 cell.setOccupant(newAgent);   // Przypisujemy agenta do komórki
-                activeAgents.add(newAgent);  // Dodajemy do listy aktywnych agentów
+                activeAgents.add(newAgent);  // Agent jest dodawany do listy aktywnych agentów
             }
         } else {
             System.out.println("Nie można utworzyć agenta " + type + " na pozycji (" + startX + ", " + startY + ") - pole zajęte lub nieprawidłowe!");
