@@ -10,12 +10,14 @@ public class Client extends MovingAgent {
     private boolean isEating;
     private Table assignedTable;
 
+    //"kieszeń" na kelnera który aktualnie obsługuje tego klienta
+    private Waiter assignedWaiter = null;
+
     public Client(int x, int y, int startPatience){
         super(x,y);
         this.isEating = false;
         this.patience = startPatience; //!!!!!!!!!!!
         this.eatingTime = 10;
-
     }
 
     public void takeTable(Table table){
@@ -26,6 +28,7 @@ public class Client extends MovingAgent {
 
     public Order generateOrder(){
         System.out.println("Klient zamówił danie.");
+        return new Order(20);
     }
 
     public void reciveMeal(){
@@ -52,6 +55,24 @@ public class Client extends MovingAgent {
         this.assignedTable = null;
         this.order = null;
         this.isOccupied = false;
+        this.assignedWaiter = null;
+    }
+
+
+    public Waiter getAssignedWaiter() {
+        return this.assignedWaiter;
+    }
+
+    public void setAssignedWaiter(Waiter waiter) {
+        this.assignedWaiter = waiter;
+    }
+
+    public boolean wantsToOrder() {
+
+        return (!this.isEating && this.assignedWaiter == null);
+    }
+
+    public int getPatience() {
+        return this.patience;
     }
 }
-
