@@ -14,6 +14,7 @@ private final List<MovingAgent> activeAgents;
 
     //Konstruktor podający wzrost i wysokość, tworzy nową planszę
 public Board(int width, int height) { //pamietac zeby przy symulacji okreslic minimalny rozmiar
+
     this.width = width;
     this.height = height;
     this.grid = new Cell[width][height];
@@ -22,7 +23,7 @@ public Board(int width, int height) { //pamietac zeby przy symulacji okreslic mi
     initializeGrid();
 }
 
- // Metoda odpowiedzialna za tworzenie planszy - przypisywanie typów do planszy
+ // Metoda odpowiedzialna za tworzenie planszy i przypisywanie typów do planszy
 private void initializeGrid() {
     for(int x = 0; x < width; x++){
         for (int y = 0; y< height; y++) {
@@ -31,7 +32,7 @@ private void initializeGrid() {
             if (y < 4){ //wielkosc kuchni
                 type = CellType.KITCHEN;
             } else if (y == 4){
-                if ( x >= width / 3 && x <= (2*width)){ // dlugosc buffera (ok 1/3 sciany)
+                if ( x >= width / 3 && x <= (2*width)/3){ // dlugosc buffera (ok 1/3 sciany)
                     type = CellType.BUFFER;
                 } else {
                     type = CellType.WALL;
@@ -40,8 +41,11 @@ private void initializeGrid() {
                 type = CellType.HALL; // reszta to poprostu sala
             }
 
-            grid[x][y] = new Cell(x, y, type); //deklarujemy
+            grid[x][y] = new Cell(x, y, type); //deklarujemy komórke z typem
+            System.out.print("[" + grid[x][y].getType() + "]");
+
         }
+        System.out.println();
 
     }
 
