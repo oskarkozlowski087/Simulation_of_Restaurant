@@ -1,6 +1,7 @@
 package agents;
 
 import environment.Table;
+import models.Order;
 
 public class Client extends MovingAgent {
 

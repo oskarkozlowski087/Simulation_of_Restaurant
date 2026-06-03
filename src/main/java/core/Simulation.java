@@ -55,13 +55,6 @@ public class Simulation {
 
         // Ta pętla kręci się tak długo aż isRunning = false
         while (isRunning) {
-
-            // TUTAJ W PRZYSZŁOŚCI BĘDZIE SIĘ DZIAŁA MAGIA:
-            // 1. Kucharze smażą (np. pętla po liście cooks)
-            // 2. Kelnerzy chodzą (np. pętla po liście waiters)
-            // 3. Klienci jedzą (np. pętla po liście clients)
-
-
             tick++; //wirtualny zegar (+1)
 
             //aby symulacja nie zawiesiła komputera
