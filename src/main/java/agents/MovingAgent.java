@@ -1,5 +1,7 @@
 package agents;
 
+import models.Order;
+
 public abstract class MovingAgent {
     protected int x;
     protected int y;

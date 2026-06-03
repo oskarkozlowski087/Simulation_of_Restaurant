@@ -1,4 +1,6 @@
-package agents;//import environment.Table
+package agents;
+
+//import environment.Table
 //import environment.Buffer
 //import models.Order
 

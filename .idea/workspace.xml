@@ -5,15 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="beb741af-d7e3-4e08-aa1e-ab01d7464fab" name="Changes" comment="Zmiana struktury projektu na poprawny(Automatyczne budowanie Maven)">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/agents/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/agents/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/agents/Cook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/agents/Cook.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/agents/MovingAgent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/agents/MovingAgent.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/core/Board.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/core/Board.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/environment/Cell.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/environment/Cell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/core/Simulation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/core/Simulation.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -30,10 +39,10 @@
     &quot;accountId&quot;: &quot;c6b9fff3-1b3d-4d38-bf57-a81fbec13ad5&quot;
   }
 }</component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8,
-  "fromUser": false
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8,
+  &quot;fromUser&quot;: false
+}</component>
   <component name="ProjectId" id="3EZvgoNc4gurBQgpP400Bd0SKEy" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -44,10 +53,13 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.Simulation.executor": "Run",
+    "Maven.Simulation_of_Restaurant [package].executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "Implementacja__planszy",
     "kotlin-language-version-configured": "true",
     "vue.rearranger.settings.migration": "true"
   }
@@ -80,13 +92,27 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1780399023996</updated>
-      <workItem from="1780399025551" duration="2240000" />
+      <workItem from="1780399025551" duration="3277000" />
+      <workItem from="1780434337390" duration="8461000" />
+      <workItem from="1780474840157" duration="3042000" />
+      <workItem from="1780485773483" duration="4453000" />
     </task>
     <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Zmiana struktury projektu na poprawny(Automatyczne budowanie Maven)" />

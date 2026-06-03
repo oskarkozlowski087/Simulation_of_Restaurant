@@ -15,7 +15,7 @@ public class Simulation {
     // 1. INWENTARZ RESTAURACJI
 
     private Buffer buffer;
-
+    private Board board;
     private List<Table> tables;
     private List<Stove> stoves;
 
@@ -33,33 +33,32 @@ public class Simulation {
         this.waiters = new ArrayList<>();
         this.cooks = new ArrayList<>();
         this.clients = new ArrayList<>();
-
         // Budujemy jedną, wspolny butter (POGLĄDOWO)!!!!!!!!!!!! na środku sali
-        this.buffer = new Buffer(10, 10);
-
+        //this.buffer = new Buffer(10, 10);
         // Rozstawiamy meble (na razie testowo, na sztywno kilka sztuk) POGLĄDOWO!!!!!!!!!!
-        this.tables.add(new Table(2, 2));
+        this.tables.add(new Table(2, 6));
         this.tables.add(new Table(2, 4));
 
-        this.stoves.add(new Stove(18, 2));
-        this.stoves.add(new Stove(18, 4));
+        //this.stoves.add(new Stove(18, 2));
+        //this.stoves.add(new Stove(18, 4));
 
         // Zaznaczamy, że restauracja jest gotowa do startu
         this.isRunning = true;
     }
-    // 3. GŁÓWNY SILNIK GRY -zegar
 
+    //main
+    public static void main(String []args){
+        Simulation symulacja = new Simulation();
+        symulacja.run();
+    }
+
+    // GŁÓWNY SILNIK GRY -zegar 3.
     public void run() {
         System.out.println("--- OTWIERAMY RESTAURACJĘ ---");
         int tick = 0; // licznik czasu
-
+        Board board1 = new Board(10,12);
         // Ta pętla kręci się tak długo aż isRunning = false
         while (isRunning) {
-
-            // TUTAJ W PRZYSZŁOŚCI BĘDZIE SIĘ DZIAŁA MAGIA:
-            // 1. Kucharze smażą (np. pętla po liście cooks)
-            // 2. Kelnerzy chodzą (np. pętla po liście waiters)
-            // 3. Klienci jedzą (np. pętla po liście clients)
 
 
             tick++; //wirtualny zegar (+1)

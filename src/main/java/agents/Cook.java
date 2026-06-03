@@ -2,6 +2,7 @@ package agents;
 
 import environment.Buffer;
 import environment.Stove;
+import models.Order;
 
 public class Cook extends MovingAgent {
     private Stove assignedStove;
