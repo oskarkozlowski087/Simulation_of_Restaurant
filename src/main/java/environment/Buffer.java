@@ -29,8 +29,16 @@ public class Buffer {
         }
         return readyMeals.remove(0);
     }
+    //METODY DLA KUCHARZA
     public void addReadyMeal(Order order) {
         readyMeals.add(order);
+    }
+
+    public Order takeOrder() {
+        if (pendingOrders.isEmpty()) {
+            return null;
+        }
+        return pendingOrders.remove(0);
     }
     public int getX() {
         return x;
