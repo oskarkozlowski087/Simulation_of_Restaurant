@@ -25,11 +25,13 @@ public class Simulation {
     private List<Client> clients;
 
     private boolean isRunning;
+    private boolean isInitialized;
     private int tick;
     private int nextClientTick;
     private int spawnMin;
     private int spawnMax;
     private Random random;
+    private List<String> logMessages;
 
     public Simulation() {
         this.tables = new ArrayList<>();
@@ -37,7 +39,9 @@ public class Simulation {
         this.waiters = new ArrayList<>();
         this.cooks = new ArrayList<>();
         this.clients = new ArrayList<>();
-        this.isRunning = true;
+        this.logMessages = new ArrayList<>();
+        this.isRunning = false;
+        this.isInitialized = false;
         this.tick = 0;
         this.spawnMin = 3;
         this.spawnMax = 8;
@@ -45,8 +49,8 @@ public class Simulation {
         this.nextClientTick = random.nextInt(spawnMax - spawnMin + 1) + spawnMin;
     }
 
-    public void run() {
-        System.out.println("--- OTWIERAMY RESTAURACJĘ ---");
+    public void init() {
+        log("--- OTWIERAMY RESTAURACJĘ ---");
         this.board = new Board(10, 12);
 
         this.tables.add(new Table(2, 6));
@@ -73,38 +77,113 @@ public class Simulation {
         waiters.add(waiter);
         board.registerAgent(waiter, 2, 8);
 
+        this.isInitialized = true;
+        log("Restauracja gotowa do otwarcia!");
+    }
+
+    public void run() {
+        if (!isInitialized) init();
+        isRunning = true;
         while (isRunning) {
-            tick++;
+            tick();
+        }
+    }
 
-            if (tick >= 100) {
-                System.out.println("Koniec zmiany! Zamykamy.");
-                isRunning = false;
+    public void tick() {
+        if (!isRunning || !isInitialized) return;
+
+        tick++;
+
+        if (tick >= 100) {
+            log("Koniec zmiany! Zamykamy.");
+            isRunning = false;
+            return;
+        }
+
+        if (tick >= nextClientTick) {
+            Table freeTable = findFreeTable();
+            if (freeTable != null) {
+                Client client = new Client(0, 0, 10);
+                freeTable.setOccupied(true);
+                client.takeTable(freeTable);
+                client.generateOrder();
+                clients.add(client);
+                board.registerAgent(client, freeTable.getX(), freeTable.getY());
+                log("Nowy klient przy stoliku (" + freeTable.getX() + "," + freeTable.getY() + ")");
             }
+            nextClientTick = tick + random.nextInt(spawnMax - spawnMin + 1) + spawnMin;
+        }
 
-            if (tick >= nextClientTick) {
-                Table freeTable = findFreeTable();
-                if (freeTable != null) {
-                    Client client = new Client(0, 0, 10);
-                    freeTable.setOccupied(true);
-                    client.takeTable(freeTable);
-                    client.generateOrder();
-                    clients.add(client);
-                    board.registerAgent(client, freeTable.getX(), freeTable.getY());
-                }
-                nextClientTick = tick + random.nextInt(spawnMax - spawnMin + 1) + spawnMin;
+        for (Waiter w : waiters) w.scanBoard();
+        for (Cook c : cooks) c.scanBoard();
+
+        Iterator<Client> it = clients.iterator();
+        while (it.hasNext()) {
+            Client c = it.next();
+            c.decrementTime();
+            if (c.getAssignedTable() == null) {
+                it.remove();
             }
+        }
+    }
 
-            for (Waiter w : waiters) w.scanBoard();
-            for (Cook c : cooks) c.scanBoard();
+    public void stop() {
+        isRunning = false;
+    }
 
-            Iterator<Client> it = clients.iterator();
-            while (it.hasNext()) {
-                Client c = it.next();
-                c.decrementTime();
-                if (c.getAssignedTable() == null) {
-                    it.remove();
-                }
-            }
+    public void startSimulation() {
+        isRunning = true;
+    }
+
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    public boolean isInitialized() {
+        return isInitialized;
+    }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public int getTick() {
+        return tick;
+    }
+
+    public List<Client> getClients() {
+        return clients;
+    }
+
+    public List<Waiter> getWaiters() {
+        return waiters;
+    }
+
+    public List<Cook> getCooks() {
+        return cooks;
+    }
+
+    public List<Stove> getStoves() {
+        return stoves;
+    }
+
+    public List<Table> getTables() {
+        return tables;
+    }
+
+    public Buffer getBuffer() {
+        return buffer;
+    }
+
+    public List<String> getLogMessages() {
+        return logMessages;
+    }
+
+    public void log(String message) {
+        System.out.println(message);
+        logMessages.add("[" + tick + "] " + message);
+        if (logMessages.size() > 200) {
+            logMessages.remove(0);
         }
     }
 

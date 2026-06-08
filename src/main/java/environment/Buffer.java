@@ -40,6 +40,14 @@ public class Buffer {
         }
         return pendingOrders.remove(0);
     }
+    public int getPendingCount() {
+        return pendingOrders.size();
+    }
+
+    public int getReadyCount() {
+        return readyMeals.size();
+    }
+
     public int getX() {
         return x;
     }
