@@ -28,7 +28,8 @@ public class Client extends MovingAgent {
 
     public Order generateOrder(){
         System.out.println("Klient zamówił danie.");
-        return new Order(20);
+        this.order = new Order(20);
+        return this.order;
     }
 
     public void reciveMeal(){
@@ -52,10 +53,17 @@ public class Client extends MovingAgent {
 
     public void leaveRestaurant(String reason) {
         System.out.println("Klient wychodzi z restauracji: " + reason);
+        if (assignedTable != null) {
+            assignedTable.setOccupied(false);
+        }
         this.assignedTable = null;
         this.order = null;
         this.isOccupied = false;
         this.assignedWaiter = null;
+    }
+
+    public Table getAssignedTable() {
+        return assignedTable;
     }
 
 
@@ -65,6 +73,12 @@ public class Client extends MovingAgent {
 
     public void setAssignedWaiter(Waiter waiter) {
         this.assignedWaiter = waiter;
+    }
+
+    public Order takeOrder() {
+        Order o = this.order;
+        this.order = null;
+        return o;
     }
 
     public boolean wantsToOrder() {

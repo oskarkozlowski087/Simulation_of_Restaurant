@@ -106,7 +106,7 @@ public class Waiter extends MovingAgent {
     }
 
     public void pickUpOrder() {
-        Order clientOrder = this.currentTargetClient.generateOrder();
+        Order clientOrder = this.currentTargetClient.takeOrder();
 
         if (clientOrder != null) {
             this.order = clientOrder;

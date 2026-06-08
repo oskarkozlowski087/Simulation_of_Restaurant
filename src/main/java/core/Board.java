@@ -1,5 +1,6 @@
 package core;
 
+import environment.Buffer;
 import environment.Cell;
 import environment.CellType;
 import agents.MovingAgent;
@@ -41,7 +42,10 @@ private void initializeGrid() {
                 type = CellType.HALL; // reszta to poprostu sala
             }
 
-            grid[x][y] = new Cell(x, y, type); //deklarujemy komórke z typem
+            grid[x][y] = new Cell(x, y, type);
+            if (type == CellType.BUFFER) {
+                grid[x][y].setBuffer(new Buffer(x, y));
+            }
             System.out.print("[" + grid[x][y].getType() + "]");
 
         }

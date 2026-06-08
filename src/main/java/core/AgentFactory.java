@@ -4,7 +4,9 @@ import agents.Cook;
 import agents.Client;
 import agents.Waiter;
 import agents.MovingAgent;
+import environment.Buffer;
 import environment.CellType;
+import environment.Stove;
 
 // klasa odpowiedzialna za tworzenie wszystkich agentow
 public class AgentFactory {
@@ -15,9 +17,9 @@ public class AgentFactory {
 
         switch (type) {
             case "COOK":
-                return new Cook(startX, startY); // W przyszłości można dodać ID, żeby ich rozróżniać
+                return new Cook(startX, startY, null, null);
             case "WAITER":
-                return new Waiter(startX, startY); //
+                return new Waiter(startX, startY, null, null);
             case "CLIENT":
                 return new Client(startX, startY, Patience);
             default:

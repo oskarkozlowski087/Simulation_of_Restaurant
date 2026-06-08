@@ -8,6 +8,7 @@ public class Cell {
     private MovingAgent occupant;
     private Table table;
     private boolean isStove;
+    private Buffer buffer;
 
     public Cell(int x, int y, CellType type){
         this.x = x;
@@ -16,6 +17,7 @@ public class Cell {
         this.occupant = null;
         this.table = null;
         this.isStove = false;
+        this.buffer = null;
     }
 
     public boolean isWalkable() {
@@ -34,4 +36,7 @@ public class Cell {
 
     public boolean isStove() { return isStove; }
     public void setStove(boolean isStove) { this.isStove = isStove; }
+
+    public Buffer getBuffer() { return buffer; }
+    public void setBuffer(Buffer buffer) { this.buffer = buffer; }
 }
