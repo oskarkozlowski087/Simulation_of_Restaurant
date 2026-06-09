@@ -5,7 +5,7 @@ import models.Order;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Buffer {
+public class    Buffer {
     private int x;
     private int y;
     private List<Order> pendingOrders; // Karteczki dla kucharzy

@@ -32,5 +32,13 @@ public abstract class MovingAgent {
         return this.y;
     }
 
+    public int getTarX() {
+        return tarX;
+    }
+
+    public int getTarY() {
+        return tarY;
+    }
+
 
 }
