@@ -101,28 +101,69 @@ public class Simulation {
         }
 
         if (tick >= nextClientTick) {
-            Table freeTable = findFreeTable();
-            if (freeTable != null) {
-                Client client = new Client(0, 0, 10);
-                freeTable.setOccupied(true);
-                client.takeTable(freeTable);
-                client.generateOrder();
-                clients.add(client);
-                board.registerAgent(client, freeTable.getX(), freeTable.getY());
-                log("Nowy klient przy stoliku (" + freeTable.getX() + "," + freeTable.getY() + ")");
-            }
+            Client client = new Client(0, 0, 10, this.tables);
+
+            clients.add(client);
+            board.registerAgent(client, 0, 0);
+            log("Nowy klient wszedł do restauracji i rozgląda się za miejscem.");
+
             nextClientTick = tick + random.nextInt(spawnMax - spawnMin + 1) + spawnMin;
         }
 
-        for (Waiter w : waiters) w.scanBoard();
-        for (Cook c : cooks) c.scanBoard();
+        for (Waiter w : waiters) {
+            int oldX = w.getX();
+            int oldY = w.getY();
 
+            w.scanBoard();
+
+            int newX = w.getX();
+            int newY = w.getY();
+
+            if (oldX != newX || oldY != newY) {
+                board.getCell(oldX, oldY).setOccupant(null);
+                board.getCell(newX, newY).setOccupant(w);
+            }
+        }
+
+        //kucharze
+        for (Cook c : cooks) {
+            int oldX = c.getX();
+            int oldY = c.getY();
+
+            c.scanBoard();
+
+            int newX = c.getX();
+            int newY = c.getY();
+
+            if (oldX != newX || oldY != newY) {
+                board.getCell(oldX, oldY).setOccupant(null);
+                board.getCell(newX, newY).setOccupant(c);
+            }
+        }
+
+        //klienci
         Iterator<Client> it = clients.iterator();
         while (it.hasNext()) {
             Client c = it.next();
-            c.decrementTime();
-            if (c.getAssignedTable() == null) {
-                it.remove();
+
+            int oldX = c.getX();
+            int oldY = c.getY();
+
+            c.scanBoard();
+
+            int newX = c.getX();
+            int newY = c.getY();
+
+            // aktualizacja planszy
+            if (oldX != newX || oldY != newY) {
+                board.getCell(oldX, oldY).setOccupant(null);
+                board.getCell(newX, newY).setOccupant(c);
+            }
+
+            // usuwanie klienta
+            if (c.hasLeft()) {
+                board.getCell(c.getX(), c.getY()).setOccupant(null);
+                it.remove(); // wyrzucamy go z listy
             }
         }
     }

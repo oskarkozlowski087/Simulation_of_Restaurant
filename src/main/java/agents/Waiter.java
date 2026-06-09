@@ -35,7 +35,7 @@ public class Waiter extends MovingAgent {
 
         if (this.order == null) {
 
-            // 1. Idziemy po zamówienie do wybranego  najbliższego klienta
+            // Idziemy po zamówienie do klienta
             if (!isWaitingForFood && this.currentTargetClient != null) {
                 if (this.x == this.currentTargetClient.getX() && this.y == this.currentTargetClient.getY()) {
                     pickUpOrder();
@@ -45,7 +45,7 @@ public class Waiter extends MovingAgent {
                     move();
                 }
             }
-            // 2. Czekamy przy buforze na jedzenie
+            //czekamy przy buforze na jedzenie
             else if (isWaitingForFood) {
                 if (this.x == this.buffer.getX() && this.y == this.buffer.getY()) {
                     pickOrderFromBuffer();
@@ -57,7 +57,6 @@ public class Waiter extends MovingAgent {
             }
         }
         else {
-            // 3. Niesienie na buffer
             if (this.order.getStatus() == OrderStatus.ZLOZONE) {
                 if (this.x == this.buffer.getX() && this.y == this.buffer.getY()) {
                     dropOrderAtBuffer();
@@ -67,7 +66,7 @@ public class Waiter extends MovingAgent {
                     move();
                 }
             }
-            // 4. odnoszenie gotowego jedzenia do tego samego klienta
+            //odnoszenie gotowego jedzenia do tego samego klienta
             else if (this.order.getStatus() == OrderStatus.GOTOWE) {
                 if (this.x == this.currentTargetClient.getX() && this.y == this.currentTargetClient.getY()) {
                     deliverOrder();
@@ -79,7 +78,7 @@ public class Waiter extends MovingAgent {
             }
         }
     }
-    //szukanie najbardziej "wkurzonego" klienta
+    //szukanie najmniej cierpliwego klienta
     private void findMostImpatientClientToServe() {
         int lowestPatience = 999999; // Ustawiamy duza liczbę
         Client mostImpatientClient = null;
@@ -87,7 +86,7 @@ public class Waiter extends MovingAgent {
         // kelner patrzy na każdego klienta
         for (Client client : allClients) {
 
-            // sprawdzamy czy klient chce zamówić i nie ma już kelnera
+            //sprawdzamy czy klient chce zamówić i nie ma już kelnera
             if (client.wantsToOrder()) {
 
                 //sprawdzamy
