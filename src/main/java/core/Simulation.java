@@ -56,12 +56,16 @@ public class Simulation {
         this.tables.add(new Table(2, 6));
         this.tables.add(new Table(5, 6));
         this.tables.add(new Table(8, 6));
+        this.tables.add(new Table(2, 9));
+        this.tables.add(new Table(5, 9));
+        this.tables.add(new Table(8, 9));
 
         for (Table table : tables) {
             board.getCell(table.getX(), table.getY()).setTable(table);
         }
 
-        this.stoves.add(new Stove(3, 2));
+        this.stoves.add(new Stove(2, 2));
+        this.stoves.add(new Stove(4, 2));
         this.stoves.add(new Stove(6, 2));
         for (Stove stove : stoves) {
             board.getCell(stove.getX(), stove.getY()).setStove(true);
@@ -69,13 +73,19 @@ public class Simulation {
 
         this.buffer = findBuffer();
 
-        Cook cook = new Cook(4, 2, stoves.get(0), buffer);
-        cooks.add(cook);
-        board.registerAgent(cook, 4, 2);
+        Cook cook1 = new Cook(3, 2, stoves.get(0), buffer);
+        cooks.add(cook1);
+        board.registerAgent(cook1, 3, 2);
+        Cook cook2 = new Cook(5, 2, stoves.get(1), buffer);
+        cooks.add(cook2);
+        board.registerAgent(cook2, 5, 2);
 
-        Waiter waiter = new Waiter(2, 8, buffer, clients);
-        waiters.add(waiter);
-        board.registerAgent(waiter, 2, 8);
+        Waiter waiter1 = new Waiter(2, 8, buffer, clients);
+        waiters.add(waiter1);
+        board.registerAgent(waiter1, 2, 8);
+        Waiter waiter2 = new Waiter(8, 8, buffer, clients);
+        waiters.add(waiter2);
+        board.registerAgent(waiter2, 8, 8);
 
         this.isInitialized = true;
         log("Restauracja gotowa do otwarcia!");
