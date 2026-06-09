@@ -7,6 +7,9 @@ import agents.MovingAgent;
 import environment.Buffer;
 import environment.CellType;
 import environment.Stove;
+import environment.Table;
+
+import java.util.ArrayList;
 
 // klasa odpowiedzialna za tworzenie wszystkich agentow
 public class AgentFactory {
@@ -21,7 +24,7 @@ public class AgentFactory {
             case "WAITER":
                 return new Waiter(startX, startY, null, null);
             case "CLIENT":
-                return new Client(startX, startY, Patience);
+                return new Client(startX, startY, Patience, new ArrayList<>());
             default:
                 throw new IllegalArgumentException("Nieobsługiwany typ agenta");
         }
