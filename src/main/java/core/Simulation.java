@@ -111,10 +111,10 @@ public class Simulation {
         }
 
         if (tick >= nextClientTick) {
-            Client client = new Client(0, 0, 10, this.tables);
+            Client client = new Client(5, 11, 10, this.tables);
 
             clients.add(client);
-            board.registerAgent(client, 0, 0);
+            board.registerAgent(client, 5, 11);
             log("Nowy klient wszedł do restauracji i rozgląda się za miejscem.");
 
             nextClientTick = tick + random.nextInt(spawnMax - spawnMin + 1) + spawnMin;
