@@ -33,7 +33,16 @@ public class Simulation {
     private Random random;
     private List<String> logMessages;
 
+    private int tableCount;
+    private int cookCount;
+    private int waiterCount;
+    private SimulationStats stats;
+
     public Simulation() {
+        this(6, 2, 2);
+    }
+
+    public Simulation(int tableCount, int cookCount, int waiterCount) {
         this.tables = new ArrayList<>();
         this.stoves = new ArrayList<>();
         this.waiters = new ArrayList<>();
@@ -47,45 +56,49 @@ public class Simulation {
         this.spawnMax = 8;
         this.random = new Random();
         this.nextClientTick = random.nextInt(spawnMax - spawnMin + 1) + spawnMin;
+        this.tableCount = tableCount;
+        this.cookCount = cookCount;
+        this.waiterCount = waiterCount;
+        this.stats = new SimulationStats(tableCount, cookCount, waiterCount);
     }
 
     public void init() {
         log("--- OTWIERAMY RESTAURACJĘ ---");
         this.board = new Board(10, 12);
 
-        this.tables.add(new Table(2, 6));
-        this.tables.add(new Table(5, 6));
-        this.tables.add(new Table(8, 6));
-        this.tables.add(new Table(2, 9));
-        this.tables.add(new Table(5, 9));
-        this.tables.add(new Table(8, 9));
-
-        for (Table table : tables) {
-            board.getCell(table.getX(), table.getY()).setTable(table);
+        int[][] tablePos = {{2,6}, {5,6}, {8,6}, {2,9}, {5,9}, {8,9}};
+        int limit = Math.min(tableCount, tablePos.length);
+        for (int i = 0; i < limit; i++) {
+            Table t = new Table(tablePos[i][0], tablePos[i][1]);
+            tables.add(t);
+            board.getCell(t.getX(), t.getY()).setTable(t);
         }
 
-        this.stoves.add(new Stove(2, 2));
-        this.stoves.add(new Stove(4, 2));
-        this.stoves.add(new Stove(6, 2));
-        for (Stove stove : stoves) {
-            board.getCell(stove.getX(), stove.getY()).setStove(true);
+        int[][] stovePos = {{2,2}, {4,2}, {6,2}};
+        int stoveLimit = Math.min(cookCount, 3);
+        for (int i = 0; i < stoveLimit; i++) {
+            Stove s = new Stove(stovePos[i][0], stovePos[i][1]);
+            stoves.add(s);
+            board.getCell(s.getX(), s.getY()).setStove(true);
         }
 
         this.buffer = findBuffer();
 
-        Cook cook1 = new Cook(3, 2, stoves.get(0), buffer);
-        cooks.add(cook1);
-        board.registerAgent(cook1, 3, 2);
-        Cook cook2 = new Cook(5, 2, stoves.get(1), buffer);
-        cooks.add(cook2);
-        board.registerAgent(cook2, 5, 2);
+        int[][] cookPos = {{3,2}, {5,2}, {7,2}};
+        int cookLimit = Math.min(cookCount, cookPos.length);
+        for (int i = 0; i < cookLimit; i++) {
+            Cook c = new Cook(cookPos[i][0], cookPos[i][1], stoves.get(i), buffer, stats);
+            cooks.add(c);
+            board.registerAgent(c, cookPos[i][0], cookPos[i][1]);
+        }
 
-        Waiter waiter1 = new Waiter(2, 8, buffer, clients);
-        waiters.add(waiter1);
-        board.registerAgent(waiter1, 2, 8);
-        Waiter waiter2 = new Waiter(8, 8, buffer, clients);
-        waiters.add(waiter2);
-        board.registerAgent(waiter2, 8, 8);
+        int[][] waiterPos = {{2,8}, {8,8}, {5,8}};
+        int waiterLimit = Math.min(waiterCount, waiterPos.length);
+        for (int i = 0; i < waiterLimit; i++) {
+            Waiter w = new Waiter(waiterPos[i][0], waiterPos[i][1], buffer, clients, stats);
+            waiters.add(w);
+            board.registerAgent(w, waiterPos[i][0], waiterPos[i][1]);
+        }
 
         this.isInitialized = true;
         log("Restauracja gotowa do otwarcia!");
@@ -106,15 +119,19 @@ public class Simulation {
 
         if (tick >= 100) {
             log("Koniec zmiany! Zamykamy.");
+            stats.setUnfinished(clients.size());
+            stats.setTotalTicks(tick);
+            if (buffer != null) stats.updateMaxQueue(buffer.getMaxPending());
             isRunning = false;
             return;
         }
 
         if (tick >= nextClientTick) {
-            Client client = new Client(5, 11, 10, this.tables);
+            Client client = new Client(5, 11, 8 + random.nextInt(8), this.tables, this);
 
             clients.add(client);
             board.registerAgent(client, 5, 11);
+            stats.onClientSpawned();
             log("Nowy klient wszedł do restauracji i rozgląda się za miejscem.");
 
             nextClientTick = tick + random.nextInt(spawnMax - spawnMin + 1) + spawnMin;
@@ -135,7 +152,6 @@ public class Simulation {
             }
         }
 
-        //kucharze
         for (Cook c : cooks) {
             int oldX = c.getX();
             int oldY = c.getY();
@@ -151,7 +167,6 @@ public class Simulation {
             }
         }
 
-        //klienci
         Iterator<Client> it = clients.iterator();
         while (it.hasNext()) {
             Client c = it.next();
@@ -164,17 +179,25 @@ public class Simulation {
             int newX = c.getX();
             int newY = c.getY();
 
-            // aktualizacja planszy
             if (oldX != newX || oldY != newY) {
                 board.getCell(oldX, oldY).setOccupant(null);
                 board.getCell(newX, newY).setOccupant(c);
             }
 
-            // usuwanie klienta
             if (c.hasLeft()) {
                 board.getCell(c.getX(), c.getY()).setOccupant(null);
-                it.remove(); // wyrzucamy go z listy
+                it.remove();
             }
+        }
+    }
+
+    public void onClientLeft(String reason) {
+        if (reason.contains("Najedzony") || reason.contains("szczęśliwy")) {
+            stats.onClientSatisfied();
+        } else if (reason.contains("stolik")) {
+            stats.onClientNoTable();
+        } else if (reason.contains("podszedł") || reason.contains("cierpliwość")) {
+            stats.onClientNoWaiter();
         }
     }
 
@@ -230,6 +253,10 @@ public class Simulation {
         return logMessages;
     }
 
+    public SimulationStats getStats() {
+        return stats;
+    }
+
     public void log(String message) {
         System.out.println(message);
         logMessages.add("[" + tick + "] " + message);
@@ -245,15 +272,6 @@ public class Simulation {
                 if (cell.getBuffer() != null) {
                     return cell.getBuffer();
                 }
-            }
-        }
-        return null;
-    }
-
-    private Table findFreeTable() {
-        for (Table table : tables) {
-            if (!table.getIsOccupied()) {
-                return table;
             }
         }
         return null;

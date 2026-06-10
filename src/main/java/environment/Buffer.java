@@ -10,6 +10,7 @@ public class    Buffer {
     private int y;
     private List<Order> pendingOrders; // Karteczki dla kucharzy
     private List<Order> readyMeals;    // Gotowe dania dla kelnerów
+    private int maxPending;
 
     public Buffer(int x, int y) {
         this.x = x;
@@ -17,11 +18,12 @@ public class    Buffer {
 
         this.pendingOrders = new ArrayList<>();
         this.readyMeals = new ArrayList<>();
+        this.maxPending = 0;
     }
     // METODY DLA KELNERA
     public void addOrder(Order order){
         pendingOrders.add(order);
-
+        if (pendingOrders.size() > maxPending) maxPending = pendingOrders.size();
     }
     public Order takeReadyMeal(){
         if (readyMeals.isEmpty()) {
@@ -46,6 +48,10 @@ public class    Buffer {
 
     public int getReadyCount() {
         return readyMeals.size();
+    }
+
+    public int getMaxPending() {
+        return maxPending;
     }
 
     public int getX() {

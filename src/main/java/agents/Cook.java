@@ -1,5 +1,6 @@
 package agents;
 
+import core.SimulationStats;
 import models.Order;
 import environment.Buffer;
 import environment.Stove;
@@ -9,12 +10,14 @@ public class Cook extends MovingAgent {
 
     private Stove assignedStove;
     private Buffer buffer;
+    private SimulationStats stats;
     private int cookingTimer = 0;
 
-    public Cook(int x, int y, Stove assignedStove, Buffer buffer) {
+    public Cook(int x, int y, Stove assignedStove, Buffer buffer, SimulationStats stats) {
         super(x, y);
         this.assignedStove = assignedStove;
         this.buffer = buffer;
+        this.stats = stats;
     }
 
     @Override
@@ -87,6 +90,7 @@ public class Cook extends MovingAgent {
     public void dropMeal() {
         if (this.order != null && this.order.getStatus() == OrderStatus.GOTOWE) {
             this.buffer.addReadyMeal(this.order);
+            if (stats != null) stats.onCookSession();
             System.out.println("Gotowy posiłek czeka na kelnera.");
 
             // Kucharz znow zostaje bez dania

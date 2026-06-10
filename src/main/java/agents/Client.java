@@ -1,8 +1,10 @@
 package agents;
 
+import core.Simulation;
 import environment.Table;
 import models.Order;
 import java.util.List;
+import java.util.Random;
 
 public class Client extends MovingAgent {
     private int patience;
@@ -11,17 +13,20 @@ public class Client extends MovingAgent {
     private Table assignedTable;
     private List<Table> allTables;
     private boolean hasLeft = false;
+    private Simulation simulation;
+    private Random random = new Random();
 
     // "Kieszeń" na kelnera, który aktualnie obsługuje tego klienta
     private Waiter assignedWaiter = null;
 
-    public Client(int x, int y, int startPatience, List<Table> allTables) {
+    public Client(int x, int y, int startPatience, List<Table> allTables, Simulation simulation) {
         super(x, y);
         this.isEating = false;
         this.patience = startPatience;
-        this.eatingTime = 10;
+        this.eatingTime = 6 + random.nextInt(7);
         this.assignedTable = null;
         this.allTables = allTables;
+        this.simulation = simulation;
     }
 
     @Override
@@ -83,7 +88,8 @@ public class Client extends MovingAgent {
 
     public Order generateOrder() {
         System.out.println("Klient usiadł i wymyślił zamówienie.");
-        this.order = new Order(20);
+        this.order = new Order(5 + random.nextInt(6), this);
+        if (simulation != null) simulation.getStats().onOrderPlaced();
         return this.order;
     }
 
@@ -95,8 +101,9 @@ public class Client extends MovingAgent {
 
     public void leaveRestaurant(String reason) {
         System.out.println("Klient wychodzi z restauracji: " + reason);
+        if (simulation != null) simulation.onClientLeft(reason);
         if (assignedTable != null) {
-            assignedTable.setOccupied(false); // Zwalnia stolik dla innych
+            assignedTable.setOccupied(false);
         }
 
         this.assignedTable = null;

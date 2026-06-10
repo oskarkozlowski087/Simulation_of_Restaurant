@@ -6,6 +6,7 @@ import agents.MovingAgent;
 import agents.Waiter;
 import core.Board;
 import core.Simulation;
+import core.SimulationStats;
 import environment.Buffer;
 import environment.Cell;
 import environment.Stove;
@@ -20,6 +21,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -29,6 +32,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class RestaurantApp extends Application {
@@ -41,15 +48,31 @@ public class RestaurantApp extends Application {
     private VBox logBox;
     private ScrollPane logScroll;
     private VBox agentInfoBox;
+    private VBox statsBox;
     private Button startButton;
     private HBox agentBar;
     private AnimationTimer timer;
     private volatile boolean running = false;
     private double speedMultiplier = 1.0;
 
+    private Spinner<Integer> tableSpinner;
+    private Spinner<Integer> cookSpinner;
+    private Spinner<Integer> waiterSpinner;
+
     @Override
     public void start(Stage primaryStage) {
-        simulation = new Simulation();
+        tableSpinner = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 6, 6));
+        cookSpinner = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 3, 2));
+        waiterSpinner = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 3, 2));
+        styleSpinner(tableSpinner);
+        styleSpinner(cookSpinner);
+        styleSpinner(waiterSpinner);
+
+        simulation = new Simulation(
+            tableSpinner.getValue(),
+            cookSpinner.getValue(),
+            waiterSpinner.getValue()
+        );
         simulation.init();
 
         BorderPane root = new BorderPane();
@@ -96,12 +119,19 @@ public class RestaurantApp extends Application {
                     refreshUI();
                     if (!simulation.isRunning()) {
                         running = false;
-                        startButton.setText("Start");
+                        startButton.setText("▶ Start");
+                        updateStatsPanel();
                     }
                 }
             }
         };
         timer.start();
+    }
+
+    private void styleSpinner(Spinner<Integer> s) {
+        s.setPrefWidth(70);
+        s.setStyle("-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 13px;");
+        s.getEditor().setStyle("-fx-background-color: #2c3e50; -fx-text-fill: #ecf0f1; -fx-font-weight: bold;");
     }
 
     private HBox createTopBar() {
@@ -142,9 +172,9 @@ public class RestaurantApp extends Application {
     }
 
     private VBox createRightPanel() {
-        VBox panel = new VBox(10);
+        VBox panel = new VBox(8);
         panel.setPadding(new Insets(12));
-        panel.setPrefWidth(270);
+        panel.setPrefWidth(280);
         panel.setStyle("-fx-background-color: #2c3e50; -fx-border-color: #4a6a8a; -fx-border-width: 0 0 0 1;");
 
         Label infoTitle = new Label("📊 Status");
@@ -153,6 +183,39 @@ public class RestaurantApp extends Application {
         bufferLabel = new Label("📦 Buffer: 0 zamówień, 0 dań");
         bufferLabel.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 13px;");
         bufferLabel.setPadding(new Insets(4, 0, 4, 0));
+
+        // Konfiguracja
+        Label configTitle = new Label("━━ Konfiguracja ━━");
+        configTitle.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 12px;");
+
+        HBox tableRow = new HBox(8, new Label("🪑 Stoliki:") {{
+            setStyle("-fx-text-fill: #ecf0f1; -fx-font-size: 13px;");
+        }}, tableSpinner);
+        HBox cookRow = new HBox(8, new Label("👨‍🍳 Kucharze:") {{
+            setStyle("-fx-text-fill: #ecf0f1; -fx-font-size: 13px;");
+        }}, cookSpinner);
+        HBox waiterRow = new HBox(8, new Label("🧑‍💼 Kelnerzy:") {{
+            setStyle("-fx-text-fill: #ecf0f1; -fx-font-size: 13px;");
+        }}, waiterSpinner);
+
+        Button applyBtn = new Button("⟳ Reset z nowymi");
+        applyBtn.setStyle("-fx-font-size: 12px; -fx-padding: 4 12; -fx-background-color: #8e44ad; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand;");
+        applyBtn.setOnAction(e -> resetSimulation());
+
+        // Wyniki
+        Label statsTitle = new Label("📈 Wyniki");
+        statsTitle.setStyle("-fx-text-fill: #ecf0f1; -fx-font-size: 14px; -fx-font-weight: bold;");
+        statsTitle.setPadding(new Insets(8, 0, 2, 0));
+
+        statsBox = new VBox(2);
+        statsBox.setStyle("-fx-background-color: #34495e; -fx-padding: 8; -fx-background-radius: 4;");
+        statsBox.getChildren().add(new Label("(uruchom symulację)") {{
+            setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 11px;");
+        }});
+
+        Button saveBtn = new Button("💾 Zapisz raport");
+        saveBtn.setStyle("-fx-font-size: 12px; -fx-padding: 4 12; -fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand;");
+        saveBtn.setOnAction(e -> saveReport());
 
         agentInfoBox = new VBox(4);
 
@@ -164,13 +227,21 @@ public class RestaurantApp extends Application {
         logScroll = new ScrollPane(logBox);
         logScroll.setFitToWidth(true);
         logScroll.setStyle("-fx-background: #1a252f; -fx-background-color: #1a252f;");
-        logScroll.setPrefHeight(300);
+        logScroll.setPrefHeight(200);
 
-        panel.getChildren().addAll(infoTitle, bufferLabel, agentInfoBox, logLabel, logScroll);
+        VBox configSection = new VBox(4, configTitle, tableRow, cookRow, waiterRow, applyBtn);
+
+        panel.getChildren().addAll(
+            infoTitle, bufferLabel,
+            configSection,
+            statsTitle, statsBox, saveBtn,
+            agentInfoBox,
+            logLabel, logScroll
+        );
         VBox.setVgrow(logScroll, Priority.ALWAYS);
         return panel;
     }
-
+    // Metoda, która odpowiada za pokazywanie paska cierpliwości
     private HBox createAgentStatusBar() {
         HBox bar = new HBox(20);
         bar.setPadding(new Insets(6, 10, 6, 10));
@@ -179,6 +250,7 @@ public class RestaurantApp extends Application {
         bar.setPrefHeight(36);
         return bar;
     }
+
 
     private void updateAgentStatusBar(HBox bar) {
         bar.getChildren().clear();
@@ -193,9 +265,9 @@ public class RestaurantApp extends Application {
         cooksL.setStyle("-fx-text-fill: #e74c3c; -fx-font-size: 13px; -fx-font-weight: bold;");
         Label waitersL = new Label("🧑‍💼 Kelnerzy: " + waiterCount);
         waitersL.setStyle("-fx-text-fill: #3498db; -fx-font-size: 13px; -fx-font-weight: bold;");
-        Label clientsL = new Label("👤 Klienci: " + clientCount + "/6");
+        Label clientsL = new Label("👤 Klienci: " + clientCount + "/" + simulation.getTables().size());
         clientsL.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 13px; -fx-font-weight: bold;");
-        Label tablesL = new Label("🪑 Stoliki: " + countFreeTables() + "/6 wolnych");
+        Label tablesL = new Label("🪑 Stoliki: " + countFreeTables() + "/" + simulation.getTables().size() + " wolnych");
         tablesL.setStyle("-fx-text-fill: #f39c12; -fx-font-size: 13px; -fx-font-weight: bold;");
 
         bar.getChildren().addAll(cooksL, waitersL, clientsL, tablesL);
@@ -224,7 +296,11 @@ public class RestaurantApp extends Application {
     private void resetSimulation() {
         running = false;
         startButton.setText("▶ Start");
-        simulation = new Simulation();
+        simulation = new Simulation(
+            tableSpinner.getValue(),
+            cookSpinner.getValue(),
+            waiterSpinner.getValue()
+        );
         simulation.init();
         refreshUI();
     }
@@ -240,6 +316,7 @@ public class RestaurantApp extends Application {
     private void updateBoardPane() {
         boardPane.getChildren().clear();
         Board board = simulation.getBoard();
+        if (board == null) return;
         int w = board.getWidth();
         int h = board.getHeight();
         boardPane.setPrefSize(w * CELL + 16, h * CELL + 16);
@@ -247,6 +324,7 @@ public class RestaurantApp extends Application {
         for (int x = 0; x < w; x++) {
             for (int y = 0; y < h; y++) {
                 Cell cell = board.getCell(x, y);
+                if (cell == null) continue;
                 double px = 8 + x * CELL;
                 double py = 8 + (h - 1 - y) * CELL;
 
@@ -388,6 +466,49 @@ public class RestaurantApp extends Application {
         }
 
         updateAgentStatusBar(agentBar);
+    }
+
+    private void updateStatsPanel() {
+        statsBox.getChildren().clear();
+        SimulationStats s = simulation.getStats();
+        int total = s.getTotalClients();
+        if (total == 0) {
+            statsBox.getChildren().add(new Label("(brak klientów)") {{
+                setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 11px;");
+            }});
+            return;
+        }
+        double satPct = s.getSatisfied() * 100.0 / total;
+        double noTablePct = s.getNoTable() * 100.0 / total;
+        double noWaiterPct = s.getNoWaiter() * 100.0 / total;
+
+        statsBox.getChildren().addAll(
+            new Label("Klienci ogółem: " + total) {{ setStyle("-fx-text-fill: #ecf0f1; -fx-font-size: 12px;"); }},
+            new Label("👍 Zadowoleni: " + s.getSatisfied() + " (" + String.format("%.0f", satPct) + "%)") {{ setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 11px;"); }},
+            new Label("😡 Brak stolika: " + s.getNoTable() + " (" + String.format("%.0f", noTablePct) + "%)") {{ setStyle("-fx-text-fill: #e67e22; -fx-font-size: 11px;"); }},
+            new Label("😤 Brak kelnera: " + s.getNoWaiter() + " (" + String.format("%.0f", noWaiterPct) + "%)") {{ setStyle("-fx-text-fill: #e74c3c; -fx-font-size: 11px;"); }},
+            new Label("❌ Niedokończeni: " + s.getUnfinished()) {{ setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 11px;"); }},
+            new Label("━━━━━━━━━━━━") {{ setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 10px;"); }},
+            new Label("📝 Zamówienia: " + s.getTotalOrdersPlaced()) {{ setStyle("-fx-text-fill: #ecf0f1; -fx-font-size: 11px;"); }},
+            new Label("🍝 Dania wydane: " + s.getTotalMealsDelivered()) {{ setStyle("-fx-text-fill: #ecf0f1; -fx-font-size: 11px;"); }},
+            new Label("🚶 Wyjścia kelnera: " + s.getTotalWaiterTrips()) {{ setStyle("-fx-text-fill: #3498db; -fx-font-size: 11px;"); }},
+            new Label("👨‍🍳 Sesje kucharzy: " + s.getTotalCookSessions()) {{ setStyle("-fx-text-fill: #e74c3c; -fx-font-size: 11px;"); }},
+            new Label("📊 Max kolejka: " + s.getMaxQueueLength()) {{ setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 11px;"); }}
+        );
+    }
+
+    private void saveReport() {
+        String report = simulation.getStats().toReport();
+        String filename = "raport_symulacji_"
+            + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
+            + ".txt";
+        try (FileWriter fw = new FileWriter(filename)) {
+            fw.write(report);
+            simulation.log("Raport zapisany: " + filename);
+            updateLog();
+        } catch (IOException e) {
+            simulation.log("Błąd zapisu raportu: " + e.getMessage());
+        }
     }
 
     public static void main(String[] args) {

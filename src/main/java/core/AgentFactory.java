@@ -10,21 +10,22 @@ import environment.Stove;
 import environment.Table;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 // klasa odpowiedzialna za tworzenie wszystkich agentow
 public class AgentFactory {
 
     public static MovingAgent createAgent(String type, int startX, int startY) {
-        int Patience = 15;
+        int Patience = 8 + new Random().nextInt(8);
         if (type == null) return null;
 
         switch (type) {
             case "COOK":
-                return new Cook(startX, startY, null, null);
+                return new Cook(startX, startY, null, null, null);
             case "WAITER":
-                return new Waiter(startX, startY, null, null);
+                return new Waiter(startX, startY, null, null, null);
             case "CLIENT":
-                return new Client(startX, startY, Patience, new ArrayList<>());
+                return new Client(startX, startY, Patience, new ArrayList<>(), null);
             default:
                 throw new IllegalArgumentException("Nieobsługiwany typ agenta");
         }
