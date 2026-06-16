@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="RestaurantApp" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="gui.RestaurantApp" />
+    <module name="Simulation_of_Restaurant" />
+    <option name="VM_PARAMETERS" value="--module-path $USER_HOME$/.m2/repository/org/openjfx/javafx-controls/17.0.2/javafx-controls-17.0.2-win.jar;$USER_HOME$/.m2/repository/org/openjfx/javafx-graphics/17.0.2/javafx-graphics-17.0.2-win.jar;$USER_HOME$/.m2/repository/org/openjfx/javafx-base/17.0.2/javafx-base-17.0.2-win.jar --add-modules javafx.controls" />
+    <method v="2">
+      <option name="Make" />
+    </method>
+  </configuration>
+</component>

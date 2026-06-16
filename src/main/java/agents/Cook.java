@@ -1,26 +1,49 @@
 package agents;
 
+import core.SimulationStats;
 import models.Order;
 import environment.Buffer;
 import environment.Stove;
 import models.OrderStatus;
 
+/**
+ * Reprezentuje kucharza w symulacji restauracji.
+ * Kucharz pobiera zamówienia z bufetu, przygotowuje je na przypisanej kuchence,
+ * a następnie odkłada gotowe dania z powrotem do bufetu.
+ */
 public class Cook extends MovingAgent {
 
     private Stove assignedStove;
     private Buffer buffer;
+    private SimulationStats stats;
     private int cookingTimer = 0;
 
-    public Cook(int x, int y, Stove assignedStove, Buffer buffer) {
+    /**
+     * Tworzy nowego kucharza na podanej pozycji z przypisaną kuchenką i buforem.
+     *
+     * @param x             współrzędna X początkowa
+     * @param y             współrzędna Y początkowa
+     * @param assignedStove kuchenka przypisana do tego kucharza
+     * @param buffer        bufet (lada) do pobierania i odkładania zamówień
+     * @param stats         obiekt statystyk symulacji
+     */
+    public Cook(int x, int y, Stove assignedStove, Buffer buffer, SimulationStats stats) {
         super(x, y);
         this.assignedStove = assignedStove;
         this.buffer = buffer;
+        this.stats = stats;
     }
 
-    @Override
+    /**
+     * Główna logika decyzyjna kucharza wywoływana w każdym ticku.
+     * Priorytety:
+     * 1. Puste ręce - idzie do bufetu po nowe zamówienie.
+     * 2. Ma zamówienie - idzie do kuchenki i przygotowuje posiłek.
+     * 3. Danie gotowe - odnosi je do bufetu.
+     */
+    @Override   
     public void scanBoard() {
 
-        // 1. puste ręce - idziemy po zamówienie
         if (this.order == null) {
             if (this.x == this.buffer.getX() && this.y == this.buffer.getY()) {
                 takeNewOrder();
@@ -30,17 +53,15 @@ public class Cook extends MovingAgent {
                 move();
             }
         }
-        // 2. danie w buforze lub sie robi
         else if (this.order.getStatus() == OrderStatus.W_BUFORZE || this.order.getStatus() == OrderStatus.W_PRZYGOTOWANIU) {
             if (this.x == this.assignedStove.getX() && this.y == this.assignedStove.getY()) {
-                prepareMeal(); // Odpalamy wrzucenie na palnik lub kontynuujemy odliczanie
+                prepareMeal();
             } else {
                 this.tarX = this.assignedStove.getX();
                 this.tarY = this.assignedStove.getY();
                 move();
             }
         }
-        // 3.  gotowe danie - odnosimy na Bufor
         else if (this.order.getStatus() == OrderStatus.GOTOWE) {
             if (this.x == this.buffer.getX() && this.y == this.buffer.getY()) {
                 dropMeal();
@@ -52,6 +73,9 @@ public class Cook extends MovingAgent {
         }
     }
 
+    /**
+     * Pobiera nowe zamówienie z bufetu.
+     */
     public void takeNewOrder() {
         Order presentOrder = this.buffer.takeOrder();
 
@@ -64,16 +88,20 @@ public class Cook extends MovingAgent {
         this.isOccupied = true;
     }
 
+    /**
+     * Przygotowuje posiłek na kuchence.
+     * Jeśli kuchenka jest wolna, umieszcza na niej zamówienie.
+     * Z każdym tickiem zwiększa licznik gotowania, a po osiągnięciu
+     * wymaganego czasu zdejmuje gotowe danie z kuchenki.
+     */
     public void prepareMeal() {
         if (!this.assignedStove.isOccupied()) {
-            this.assignedStove.insertOrder(this.order); //stove zmienia status wiec tu go nie dodajemy
+            this.assignedStove.insertOrder(this.order);
         }
 
-        // kolejne ticki i kroki w petli simulation
         this.cookingTimer++;
         int requiredTime = this.order.getTimeOrder();
 
-        // Sprawdzamy, czy gotowe
         if (this.cookingTimer >= requiredTime) {
             this.order = this.assignedStove.takeOutOrder();
             this.order.setStatus(OrderStatus.GOTOWE);
@@ -84,18 +112,23 @@ public class Cook extends MovingAgent {
         }
     }
 
+    /**
+     * Odkłada gotowe danie do bufetu i aktualizuje statystyki.
+     */
     public void dropMeal() {
         if (this.order != null && this.order.getStatus() == OrderStatus.GOTOWE) {
             this.buffer.addReadyMeal(this.order);
+            if (stats != null) stats.onCookSession();
             System.out.println("Gotowy posiłek czeka na kelnera.");
 
-            // Kucharz znow zostaje bez dania
             this.order = null;
             this.isOccupied = false;
         }
     }
 
-    //metoda do chodzenia
+    /**
+     * Wykonuje ruch w stronę celu (tarX, tarY) o jedną jednostkę na tick.
+     */
     private void move() {
         if (this.x < this.tarX) this.x++;
         else if (this.x > this.tarX) this.x--;
