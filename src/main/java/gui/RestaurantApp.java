@@ -38,6 +38,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * Graficzny interfejs użytkownika (JavaFX) dla symulacji restauracji.
+ * Wyświetla planszę, agentów, statystyki oraz umożliwia sterowanie symulacją
+ * (start/stop/reset, zmiana prędkości, konfiguracja).
+ */
 public class RestaurantApp extends Application {
 
     private static final int CELL = 45;
@@ -59,6 +64,12 @@ public class RestaurantApp extends Application {
     private Spinner<Integer> cookSpinner;
     private Spinner<Integer> waiterSpinner;
 
+    /**
+     * Główna metoda uruchamiana przez JavaFX. Tworzy scenę, inicjalizuje symulację
+     * oraz uruchamia timer animacji.
+     *
+     * @param primaryStage główny stage aplikacji
+     */
     @Override
     public void start(Stage primaryStage) {
         tableSpinner = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 6, 6));
@@ -128,12 +139,23 @@ public class RestaurantApp extends Application {
         timer.start();
     }
 
+    /**
+     * Stosuje stylowanie do spinnera wyboru liczby.
+     *
+     * @param s spinner do stylowania
+     */
     private void styleSpinner(Spinner<Integer> s) {
         s.setPrefWidth(70);
         s.setStyle("-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-size: 13px;");
         s.getEditor().setStyle("-fx-background-color: #2c3e50; -fx-text-fill: #ecf0f1; -fx-font-weight: bold;");
     }
 
+    /**
+     * Tworzy górny pasek z tytułem, przyciskami start/reset, wskaźnikiem ticka
+     * oraz suwakiem prędkości symulacji.
+     *
+     * @return kontener HBox z górnym paskiem
+     */
     private HBox createTopBar() {
         HBox bar = new HBox(14);
         bar.setPadding(new Insets(10, 16, 10, 16));
@@ -171,6 +193,12 @@ public class RestaurantApp extends Application {
         return bar;
     }
 
+    /**
+     * Tworzy prawy panel z konfiguracją symulacji, statystykami, informacjami
+     * o agentach oraz logiem zdarzeń.
+     *
+     * @return kontener VBox z panelem bocznym
+     */
     private VBox createRightPanel() {
         VBox panel = new VBox(8);
         panel.setPadding(new Insets(12));
@@ -184,8 +212,7 @@ public class RestaurantApp extends Application {
         bufferLabel.setStyle("-fx-text-fill: #f1c40f; -fx-font-size: 13px;");
         bufferLabel.setPadding(new Insets(4, 0, 4, 0));
 
-        // Konfiguracja
-        Label configTitle = new Label("━━ Konfiguracja ━━");
+        Label configTitle = new Label("--- Konfiguracja ---");
         configTitle.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 12px;");
 
         HBox tableRow = new HBox(8, new Label("🪑 Stoliki:") {{
@@ -202,7 +229,6 @@ public class RestaurantApp extends Application {
         applyBtn.setStyle("-fx-font-size: 12px; -fx-padding: 4 12; -fx-background-color: #8e44ad; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand;");
         applyBtn.setOnAction(e -> resetSimulation());
 
-        // Wyniki
         Label statsTitle = new Label("📈 Wyniki");
         statsTitle.setStyle("-fx-text-fill: #ecf0f1; -fx-font-size: 14px; -fx-font-weight: bold;");
         statsTitle.setPadding(new Insets(8, 0, 2, 0));
@@ -241,7 +267,13 @@ public class RestaurantApp extends Application {
         VBox.setVgrow(logScroll, Priority.ALWAYS);
         return panel;
     }
-    // Metoda, która odpowiada za pokazywanie paska cierpliwości
+
+    /**
+     * Tworzy poziomy pasek stanu pokazujący liczbę kucharzy, kelnerów, klientów
+     * oraz dostępnych stolików.
+     *
+     * @return kontener HBox z paskiem stanu agentów
+     */
     private HBox createAgentStatusBar() {
         HBox bar = new HBox(20);
         bar.setPadding(new Insets(6, 10, 6, 10));
@@ -251,7 +283,12 @@ public class RestaurantApp extends Application {
         return bar;
     }
 
-
+    /**
+     * Aktualizuje pasek stanu agentów - wyświetla aktualne liczby kucharzy,
+     * kelnerów, klientów przy stolikach oraz wolnych stolików.
+     *
+     * @param bar pasek HBox do aktualizacji
+     */
     private void updateAgentStatusBar(HBox bar) {
         bar.getChildren().clear();
         int cookCount = simulation.getCooks().size();
@@ -273,6 +310,11 @@ public class RestaurantApp extends Application {
         bar.getChildren().addAll(cooksL, waitersL, clientsL, tablesL);
     }
 
+    /**
+     * Zlicza wolne stoliki w restauracji.
+     *
+     * @return liczba wolnych stolików
+     */
     private int countFreeTables() {
         int free = 0;
         for (Table t : simulation.getTables()) {
@@ -281,6 +323,7 @@ public class RestaurantApp extends Application {
         return free;
     }
 
+    /** Przełącza stan symulacji między uruchomioną a zatrzymaną. */
     private void toggleSimulation() {
         if (running) {
             running = false;
@@ -293,6 +336,7 @@ public class RestaurantApp extends Application {
         }
     }
 
+    /** Resetuje symulację z nowymi ustawieniami konfiguracyjnymi. */
     private void resetSimulation() {
         running = false;
         startButton.setText("▶ Start");
@@ -305,6 +349,7 @@ public class RestaurantApp extends Application {
         refreshUI();
     }
 
+    /** Odświeża wszystkie elementy interfejsu (planszę, log, statystyki). */
     private void refreshUI() {
         tickLabel.setText("⚙ Tick: " + simulation.getTick());
         updateBoardPane();
@@ -313,6 +358,7 @@ public class RestaurantApp extends Application {
         updateAgentInfo();
     }
 
+    /** Rysuje aktualny stan planszy wraz z agentami, stolikami i kuchenkami. */
     private void updateBoardPane() {
         boardPane.getChildren().clear();
         Board board = simulation.getBoard();
@@ -425,11 +471,13 @@ public class RestaurantApp extends Application {
         }
     }
 
+    /** Aktualizuje etykietę bufetu z liczbą oczekujących zamówień i gotowych dań. */
     private void updateBufferLabel() {
         Buffer b = simulation.getBuffer();
         bufferLabel.setText("📦 Buffer: " + b.getPendingCount() + " zamówień, " + b.getReadyCount() + " dań");
     }
 
+    /** Aktualizuje panel loga, wyświetlając ostatnie 40 wiadomości. */
     private void updateLog() {
         List<String> msgs = simulation.getLogMessages();
         logBox.getChildren().clear();
@@ -442,6 +490,7 @@ public class RestaurantApp extends Application {
         logScroll.setVvalue(1.0);
     }
 
+    /** Aktualizuje panel informacji o agentach (kucharzach, kelnerach, klientach). */
     private void updateAgentInfo() {
         agentInfoBox.getChildren().clear();
         for (Cook c : simulation.getCooks()) {
@@ -468,6 +517,7 @@ public class RestaurantApp extends Application {
         updateAgentStatusBar(agentBar);
     }
 
+    /** Aktualizuje panel statystyk po zakończeniu symulacji. */
     private void updateStatsPanel() {
         statsBox.getChildren().clear();
         SimulationStats s = simulation.getStats();
@@ -488,7 +538,7 @@ public class RestaurantApp extends Application {
             new Label("😡 Brak stolika: " + s.getNoTable() + " (" + String.format("%.0f", noTablePct) + "%)") {{ setStyle("-fx-text-fill: #e67e22; -fx-font-size: 11px;"); }},
             new Label("😤 Brak kelnera: " + s.getNoWaiter() + " (" + String.format("%.0f", noWaiterPct) + "%)") {{ setStyle("-fx-text-fill: #e74c3c; -fx-font-size: 11px;"); }},
             new Label("❌ Niedokończeni: " + s.getUnfinished()) {{ setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 11px;"); }},
-            new Label("━━━━━━━━━━━━") {{ setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 10px;"); }},
+            new Label("---------------------") {{ setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 10px;"); }},
             new Label("📝 Zamówienia: " + s.getTotalOrdersPlaced()) {{ setStyle("-fx-text-fill: #ecf0f1; -fx-font-size: 11px;"); }},
             new Label("🍝 Dania wydane: " + s.getTotalMealsDelivered()) {{ setStyle("-fx-text-fill: #ecf0f1; -fx-font-size: 11px;"); }},
             new Label("🚶 Wyjścia kelnera: " + s.getTotalWaiterTrips()) {{ setStyle("-fx-text-fill: #3498db; -fx-font-size: 11px;"); }},
@@ -497,6 +547,7 @@ public class RestaurantApp extends Application {
         );
     }
 
+    /** Zapisuje raport symulacji do pliku tekstowego. */
     private void saveReport() {
         String report = simulation.getStats().toReport();
         String filename = "raport_symulacji_"
@@ -511,6 +562,11 @@ public class RestaurantApp extends Application {
         }
     }
 
+    /**
+     * Główna metoda uruchomieniowa aplikacji JavaFX.
+     *
+     * @param args argumenty wiersza poleceń
+     */
     public static void main(String[] args) {
         launch(args);
     }

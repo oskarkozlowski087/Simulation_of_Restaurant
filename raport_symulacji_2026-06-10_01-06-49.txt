@@ -1,0 +1,18 @@
+=== RAPORT SYMULACJI RESTAURACJI ===
+Data: 2026-06-10 01:06:49
+Konfiguracja: 6 stolików, 2 kucharzy, 3 kelnerów
+Czas trwania: 100 ticków
+
+--- Klienci ---
+Zadowoleni:      6  (35,3%)
+Brak stolika:    0  ( 0,0%)
+Brak kelnera:    5  (29,4%)
+Niedokończeni:   6
+Razem:           17
+
+--- Wydajność ---
+Zamówienia złożone:    16
+Dania wydane:          8
+Wyjścia kelnera:       9
+Sesje kucharzy:        8
+Max długość kolejki:   1

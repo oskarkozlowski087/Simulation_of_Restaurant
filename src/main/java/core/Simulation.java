@@ -13,6 +13,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Główna klasa zarządzająca przebiegiem symulacji restauracji.
+ * Odpowiada za inicjalizację świata, tworzenie agentów (klientów, kelnerów, kucharzy)
+ * oraz wykonywanie kolejnych kroków symulacji (ticków).
+ */
 public class Simulation {
 
     private Buffer buffer;
@@ -38,10 +43,20 @@ public class Simulation {
     private int waiterCount;
     private SimulationStats stats;
 
+    /**
+     * Tworzy symulację z domyślną konfiguracją: 6 stolików, 2 kucharzy, 2 kelnerów.
+     */
     public Simulation() {
         this(6, 2, 2);
     }
 
+    /**
+     * Tworzy symulację z określoną konfiguracją restauracji.
+     *
+     * @param tableCount  liczba stolików
+     * @param cookCount   liczba kucharzy
+     * @param waiterCount liczba kelnerów
+     */
     public Simulation(int tableCount, int cookCount, int waiterCount) {
         this.tables = new ArrayList<>();
         this.stoves = new ArrayList<>();
@@ -53,7 +68,7 @@ public class Simulation {
         this.isInitialized = false;
         this.tick = 0;
         this.spawnMin = 3;
-        this.spawnMax = 8;
+        this.spawnMax = 10;
         this.random = new Random();
         this.nextClientTick = random.nextInt(spawnMax - spawnMin + 1) + spawnMin;
         this.tableCount = tableCount;
@@ -62,6 +77,10 @@ public class Simulation {
         this.stats = new SimulationStats(tableCount, cookCount, waiterCount);
     }
 
+    /**
+     * Inicjalizuje świat symulacji: tworzy planszę, stoliki, kuchnię, bufet,
+     * kuchenki, a następnie rozmieszcza agentów (kucharzy i kelnerów).
+     */
     public void init() {
         log("--- OTWIERAMY RESTAURACJĘ ---");
         this.board = new Board(10, 12);
@@ -104,6 +123,9 @@ public class Simulation {
         log("Restauracja gotowa do otwarcia!");
     }
 
+    /**
+     * Uruchamia główną pętlę symulacji. Wykonuje ticki, dopóki symulacja jest aktywna.
+     */
     public void run() {
         if (!isInitialized) init();
         isRunning = true;
@@ -112,6 +134,11 @@ public class Simulation {
         }
     }
 
+    /**
+     * Wykonuje pojedynczy krok symulacji (tick).
+     * Zwiększa licznik czasu, sprawdza warunek zakończenia, tworzy nowych klientów
+     * oraz aktualizuje pozycje wszystkich agentów (kelnerów, kucharzy, klientów).
+     */
     public void tick() {
         if (!isRunning || !isInitialized) return;
 
@@ -191,6 +218,11 @@ public class Simulation {
         }
     }
 
+    /**
+     * Rejestruje powód opuszczenia restauracji przez klienta i aktualizuje statystyki.
+     *
+     * @param reason powód opuszczenia restauracji (tekstowa przyczyna)
+     */
     public void onClientLeft(String reason) {
         if (reason.contains("Najedzony") || reason.contains("szczęśliwy")) {
             stats.onClientSatisfied();
@@ -201,62 +233,83 @@ public class Simulation {
         }
     }
 
+    /** Zatrzymuje symulację. */
     public void stop() {
         isRunning = false;
     }
 
+    /** Uruchamia symulację (ustawia flagę isRunning na true). */
     public void startSimulation() {
         isRunning = true;
     }
 
+    /** Sprawdza, czy symulacja jest uruchomiona. */
     public boolean isRunning() {
         return isRunning;
     }
 
+    /** Sprawdza, czy symulacja została zainicjalizowana. */
     public boolean isInitialized() {
         return isInitialized;
     }
 
+    /** Zwraca obiekt planszy symulacji. */
     public Board getBoard() {
         return board;
     }
 
+    /** Zwraca aktualny numer ticka symulacji. */
     public int getTick() {
         return tick;
     }
 
+    /** Zwraca listę wszystkich klientów w restauracji. */
     public List<Client> getClients() {
         return clients;
     }
 
+    /** Zwraca listę wszystkich kelnerów. */
     public List<Waiter> getWaiters() {
         return waiters;
     }
 
+    /** Zwraca listę wszystkich kucharzy. */
     public List<Cook> getCooks() {
         return cooks;
     }
 
+    /** Zwraca listę wszystkich kuchenek. */
     public List<Stove> getStoves() {
         return stoves;
     }
 
+    /** Zwraca listę wszystkich stolików. */
     public List<Table> getTables() {
         return tables;
     }
 
+    /** Zwraca obiekt bufora (lady) do przekazywania zamówień. */
     public Buffer getBuffer() {
         return buffer;
     }
 
+    /** Zwraca listę komunikatów loga symulacji. */
     public List<String> getLogMessages() {
         return logMessages;
     }
 
+    /** Zwraca obiekt statystyk symulacji. */
     public SimulationStats getStats() {
         return stats;
     }
 
+    /**
+     * Dodaje wiadomość do loga symulacji i wypisuje ją na konsolę.
+     * Automatycznie poprzedza wiadomość aktualnym numerem ticka.
+     * Przechowuje maksymalnie 200 ostatnich wiadomości.
+     *
+     * @param message treść wiadomości
+     */
     public void log(String message) {
         System.out.println(message);
         logMessages.add("[" + tick + "] " + message);
@@ -265,6 +318,11 @@ public class Simulation {
         }
     }
 
+    /**
+     * Wyszukuje na planszy komórkę zawierającą bufet (Buffer).
+     *
+     * @return znaleziony obiekt Buffer lub null, jeśli nie istnieje
+     */
     private Buffer findBuffer() {
         for (int x = 0; x < board.getWidth(); x++) {
             for (int y = 0; y < board.getHeight(); y++) {

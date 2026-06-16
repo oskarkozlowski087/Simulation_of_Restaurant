@@ -7,6 +7,11 @@ import models.Order;
 import models.OrderStatus;
 import java.util.List;
 
+/**
+ * Reprezentuje kelnera w symulacji restauracji.
+ * Kelner odbiera zamówienia od klientów, dostarcza je do bufetu,
+ * a następnie przenosi gotowe dania z bufetu do klientów.
+ */
 public class Waiter extends MovingAgent {
 
     private Buffer buffer;
@@ -16,6 +21,15 @@ public class Waiter extends MovingAgent {
 
     private Client currentTargetClient = null;
 
+    /**
+     * Tworzy nowego kelnera na podanej pozycji z przypisanym buforem i listą klientów.
+     *
+     * @param x           współrzędna X początkowa
+     * @param y           współrzędna Y początkowa
+     * @param buffer      bufet (lada) do przekazywania zamówień
+     * @param allClients  lista wszystkich klientów w restauracji
+     * @param stats       obiekt statystyk symulacji
+     */
     public Waiter(int x, int y, Buffer buffer, List<Client> allClients, SimulationStats stats) {
         super(x, y);
         this.buffer = buffer;
@@ -23,9 +37,16 @@ public class Waiter extends MovingAgent {
         this.stats = stats;
     }
 
+    /**
+     * Główna logika decyzyjna kelnera wywoływana w każdym ticku.
+     * Priorytety:
+     * 1. Dostarczenie gotowego dania do klienta.
+     * 2. Zostawienie nowego zamówienia w buforze.
+     * 3. Odebranie gotowego dania z bufetu.
+     * 4. Znalezienie najbardziej niecierpliwego klienta do obsłużenia.
+     */
     @Override
     public void scanBoard() {
-        // 1. niosę gotowe danie -> dostarczam
         if (this.order != null && this.order.getStatus() == OrderStatus.GOTOWE) {
             Client target = this.order.getClient();
             if (target == null) return;
@@ -39,7 +60,6 @@ public class Waiter extends MovingAgent {
             return;
         }
 
-        // 2. niosę zamówienie -> zostawiam w buforze
         if (this.order != null && this.order.getStatus() == OrderStatus.ZLOZONE) {
             if (this.x == this.buffer.getX() && this.y == this.buffer.getY()) {
                 dropOrderAtBuffer();
@@ -51,14 +71,12 @@ public class Waiter extends MovingAgent {
             return;
         }
 
-        // 3. puste ręce i jestem przy buforze -> biorę gotowe danie
         if (this.order == null && this.x == this.buffer.getX() && this.y == this.buffer.getY()) {
             if (pickOrderFromBuffer()) {
                 return;
             }
         }
 
-        // 4. puste ręce -> szukam klienta lub idę do bufora
         if (this.order == null) {
             if (this.currentTargetClient == null) {
                 findMostImpatientClientToServe();
@@ -79,6 +97,9 @@ public class Waiter extends MovingAgent {
         }
     }
 
+    /**
+     * Znajduje najbardziej niecierpliwego klienta, który chce złożyć zamówienie.
+     */
     private void findMostImpatientClientToServe() {
         int lowestPatience = 999999;
         Client mostImpatientClient = null;
@@ -98,6 +119,9 @@ public class Waiter extends MovingAgent {
         }
     }
 
+    /**
+     * Odbiera zamówienie od klienta.
+     */
     public void pickUpOrder() {
         Order clientOrder = this.currentTargetClient.takeOrder();
 
@@ -108,6 +132,9 @@ public class Waiter extends MovingAgent {
         }
     }
 
+    /**
+     * Dostarcza gotowe danie do klienta i aktualizuje statystyki.
+     */
     public void deliverOrder() {
         this.currentTargetClient.reciveMeal();
         if (stats != null) stats.onMealDelivered();
@@ -118,6 +145,9 @@ public class Waiter extends MovingAgent {
         this.currentTargetClient = null;
     }
 
+    /**
+     * Zostawia zamówienie w buforze dla kucharza i aktualizuje statystyki.
+     */
     public void dropOrderAtBuffer() {
         this.order.setStatus(OrderStatus.W_BUFORZE);
         this.buffer.addOrder(this.order);
@@ -128,6 +158,11 @@ public class Waiter extends MovingAgent {
         this.currentTargetClient = null;
     }
 
+    /**
+     * Pobiera gotowe danie z bufetu.
+     *
+     * @return true, jeśli udało się pobrać danie
+     */
     public boolean pickOrderFromBuffer() {
         Order readyMeal = this.buffer.takeReadyMeal();
 
@@ -140,6 +175,9 @@ public class Waiter extends MovingAgent {
         return false;
     }
 
+    /**
+     * Wykonuje ruch w stronę celu (tarX, tarY) o jedną jednostkę na tick.
+     */
     private void move() {
         if (this.x < this.tarX) this.x++;
         else if (this.x > this.tarX) this.x--;
