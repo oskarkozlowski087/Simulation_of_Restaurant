@@ -40,10 +40,34 @@ Zajmuje się przygotowaniem posiłków. Nasłuchuje zmian na wspólnym buforze w
 
 ---
 
-## 🚀 Jak uruchomić projekt
+## ⚡ Quick Start
 
-Projekt jest w pełni skonfigurowany pod narzędzie Maven, co rozwiązuje problemy z zarządzaniem zewnętrzną biblioteką JavaFX. Przed startem symulacji, użytkownik może zdefiniować parametry brzegowe (liczbę agentów i zasobów) za pomocą interfejsu graficznego.
-
-Aby uruchomić aplikację z GUI, sklonuj repozytorium i użyj wbudowanego pluginu z poziomu terminala:
+### 1. Budowanie projektu
+Aplikacja wykorzystuje narzędzie Maven do zarządzania zależnościami. Aby wyczyścić poprzednie kompilacje i zbudować gotowy plik wykonywalny, w katalogu głównym projektu uruchom:
 ```bash
-mvn javafx:run
+mvn clean package
+```
+
+### 2. Uruchamianie
+Program można uruchomić natychmiast przy użyciu załączonego skryptu rozruchowego:
+```bash
+./run-gui
+```
+---
+
+## 🖥️ Sample Run
+
+Po poprawnym uruchomieniu aplikacji, system automatycznie startuje pulę wątków dla personelu i otwiera Główne Okno GUI.
+
+**Przykładowy scenariusz działania**
+1. **Inicjalizacja:** System ładuje 16 stolików, uruchamia 3 wątki Kucharzy oraz 2 wątki Kelnerów.
+2. **Generowanie Klientów:** Nowi goście zajmują wolne stoliki (stan wizualny zmienia się z *Wolny* na *Zajęty*).
+3. **Logi systemowe** W tle system raportuje aktywność.
+   4. **Wizualizacja GUI:**
+   * Ikony stolików dynamicznie zmieniają kolory w zależności od stanu.
+   * Paski postępu w panelu kuchni wizualizują czas smażenia/gotowania.
+   * Liczniki wydajności na żywo aktualizują liczbę obsłużonych stolików przez konkretnego Kelnera.
+   * Wyświetlone są inne statystyki pomagające w zrozumieniu symulacji.
+   * Pasek cierpliwości nad klentem pokazuje jak dużo cierpliwości ma klient
+
+---
